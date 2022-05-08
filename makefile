@@ -2,8 +2,8 @@ BIN = bin
 BUILD = build
 SRC_DIR = src
 INCL_DIR = include
-##add additional includes if needed ex. -I./lib/SFML/include/
-INCL = -I$(INCL_DIR)/ -ID:\Code\SFML\SFML-2.5.1-gcc\include/
+##add additional includes if needed ex. -I./path/to/include/
+INCL = -I$(INCL_DIR)/
 EXE = lab_.exe
 
 PROJECT_STRUCTURE = $(BIN)/. $(BUILD)/. $(SRC_DIR)/. $(INCL_DIR)/.
@@ -11,10 +11,10 @@ PROJECT_STRUCTURE = $(BIN)/. $(BUILD)/. $(SRC_DIR)/. $(INCL_DIR)/.
 SRC_FILES = $(wildcard $(SRC_DIR)/*.cpp)
 HEADER_FILES = $(wildcard $(INCL_DIR)/*.hpp)
 OBJ_FILES = $(patsubst $(SRC_DIR)/%.cpp,$(BIN)/%.o,$(SRC_FILES))
-##add additional libraries if needed folder to find libs in -L./lib/SFML/lib/
-libpath = -LD:\Code\SFML\SFML-2.5.1-gcc\lib
-##Specify libs to use ex. -lsfml-graphics -lsfml-window -lsfml-system -lsfml-audio
-libs = -lsfml-graphics -lsfml-window -lsfml-system -lsfml-audio
+##add additional libraries if needed folder to find libs in -L./path/to/lib/
+libpath =
+##Specify libs to use ex. -lsfml-graphics
+libs = 
 CXX = g++
 LANG_STD = -std=c++17
 ERR_FLAGS = -Wall -Wpedantic -Werror
