@@ -1,6 +1,7 @@
 BIN = bin
 BUILD = build
 SRC_DIR = src
+DEP_DIR = dep
 ##add additional includes if needed ex. /path/to/include/
 INCL_DIR = include
 INCL = $(addprefix -I,${INCL_DIR}/)
@@ -8,11 +9,13 @@ EXE = lab_.exe
 
 VPATH := $(SRC_DIR)
 
-PROJECT_STRUCTURE = $(BIN)/. $(BUILD)/. $(SRC_DIR)/. $(INCL_DIR)/.
+PROJECT_STRUCTURE = $(BIN)/$(DEP_DIR)/. $(BUILD)/. $(SRC_DIR)/. $(INCL_DIR)/.
 
 SRC_FILES = $(wildcard $(SRC_DIR)/*.cpp)
 HEADER_FILES = $(wildcard $(INCL_DIR)/*.hpp)
 OBJ_FILES = $(patsubst $(SRC_DIR)/%.cpp,$(BIN)/%.o,$(SRC_FILES))
+##list of dep files with new file path to dep dir
+DEP_FILES = $(OBJ_FILES:$(BIN)/%.o=$(BIN)/$(DEP_DIR)/%.d)
 ##add additional libraries if needed ex. -L./path/to/lib/
 LIBDIRS =
 ##Specify libs to use ex. -lsfml-graphics
@@ -21,6 +24,8 @@ LIBS =
 CXX = g++
 LANG_STD = -std=c++17
 ERR_FLAGS = -Wall -Wpedantic -Werror
+## generate dep with phony targets and output to bin/dep
+DEP_GEN = -MMD -MP -MF $(BIN)/$(DEP_DIR)/$*.d
 
 ##Linker flags
 #LDFLAGS = $(addprefix -L,$(LIBDIRS)) $(LIBS)
@@ -29,7 +34,7 @@ LDFLAGS = $(LIBDIRS)
 CXXFLAGS = $(LANG_STD) $(ERR_FLAGS)
 ##Preprocessor flags and includepath
 CPPFLAGS = $(INCL)
-COMPILE = $(CXX) $(CXXFLAGS) $(CPPFLAGS) -c
+COMPILE = $(CXX) $(CXXFLAGS) $(CPPFLAGS) $(DEP_GEN) -c
 LINK = $(CXX) $(LDFLAGS)
 
 all: $(BUILD)/$(EXE)
@@ -61,6 +66,8 @@ objs:$(OBJ_FILES)
 $(BIN)/%.o: $(SRC_DIR)/%.cpp | $$(@D)/.
 	$(COMPILE) $< -o $@
 
+-include $(DEP_FILES)
+
 ##Running the program
 ##----------------------------------------------------------
 run: exe
@@ -91,6 +98,7 @@ show:
 	@echo "object files:		"$(OBJ_FILES)
 	@echo "Header files:		"$(HEADER_FILES)
 	@echo "include dir:		"$(INCL)
+	@echo "dependency files:	"$(DEP_FILES)
 	@echo "Compiler:		"$(CXX)
 	@echo "Language standard:	"$(LANG_STD)
 	@echo "Error flags:		"$(ERR_FLAGS)
