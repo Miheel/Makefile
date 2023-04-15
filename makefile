@@ -1,37 +1,41 @@
 BIN = bin
 BUILD = build
 SRC_DIR = src
+##add additional includes if needed ex. /path/to/include/
 INCL_DIR = include
-##add additional includes if needed ex. -I./path/to/include/
-INCL = -I$(INCL_DIR)/
+INCL = $(addprefix -I,${INCL_DIR}/)
 EXE = lab_.exe
+
+VPATH := $(SRC_DIR)
 
 PROJECT_STRUCTURE = $(BIN)/. $(BUILD)/. $(SRC_DIR)/. $(INCL_DIR)/.
 
 SRC_FILES = $(wildcard $(SRC_DIR)/*.cpp)
 HEADER_FILES = $(wildcard $(INCL_DIR)/*.hpp)
 OBJ_FILES = $(patsubst $(SRC_DIR)/%.cpp,$(BIN)/%.o,$(SRC_FILES))
-##add additional libraries if needed folder to find libs in -L./path/to/lib/
-libpath =
+##add additional libraries if needed ex. -L./path/to/lib/
+LIBDIRS =
 ##Specify libs to use ex. -lsfml-graphics
-libs = 
+LIBS =
+##Compiler
 CXX = g++
 LANG_STD = -std=c++17
 ERR_FLAGS = -Wall -Wpedantic -Werror
 
 ##Linker flags
-LDFLAGS = $(libpath)
+#LDFLAGS = $(addprefix -L,$(LIBDIRS)) $(LIBS)
+LDFLAGS = $(LIBDIRS) 
 #Compiler flags
-CXXFLAGS = $(LANG_STD)
-##Preprocessor flags
-CPPFLAGS = $(ERR_FLAGS)
-
-CPPFLAGS += $(INCL)
-
+CXXFLAGS = $(LANG_STD) $(ERR_FLAGS)
+##Preprocessor flags and includepath
+CPPFLAGS = $(INCL)
 COMPILE = $(CXX) $(CXXFLAGS) $(CPPFLAGS) -c
-LINK = $(CXX) $(CXXFLAGS) $(CPPFLAGS) $(LDFLAGS)
+LINK = $(CXX) $(LDFLAGS)
 
 all: $(BUILD)/$(EXE)
+
+debug: CXXFLAGS += -g
+debug: $(BUILD)/$(EXE)
 
 ##Generating base directory structure for project
 ##and main file
@@ -45,17 +49,17 @@ $(SRC_DIR)/main.cpp:
 
 .SECONDEXPANSION:
 
+##Rule for generating the executable.
+##----------------------------------------------------------
+exe: $(BUILD)/$(EXE)
+$(BUILD)/$(EXE): $(OBJ_FILES) | $$(@D)/.
+	$(LINK) $(OBJ_FILES) $(LIBS) -o $@
+
 ##Rule for compiling and generatign objectfiles (.o) files.
 ##----------------------------------------------------------
 objs:$(OBJ_FILES)
 $(BIN)/%.o: $(SRC_DIR)/%.cpp | $$(@D)/.
 	$(COMPILE) $< -o $@
-
-##Rule for generating the executable.
-##----------------------------------------------------------
-exe: $(BUILD)/$(EXE)
-$(BUILD)/$(EXE): $(OBJ_FILES) | $$(@D)/.
-	$(LINK) $(OBJ_FILES) $(libs) -o $@
 
 ##Running the program
 ##----------------------------------------------------------
@@ -86,10 +90,11 @@ show:
 	@echo "Source files:		"$(SRC_FILES)
 	@echo "object files:		"$(OBJ_FILES)
 	@echo "Header files:		"$(HEADER_FILES)
+	@echo "include dir:		"$(INCL)
 	@echo "Compiler:		"$(CXX)
 	@echo "Language standard:	"$(LANG_STD)
 	@echo "Error flags:		"$(ERR_FLAGS)
 	@echo "Compile flags:		"$(COMPILE)
 	@echo "Linker flags:		"$(LINK)
-	@echo "libs:			"$(libs)
+	@echo "libs:			"$(LIBS)
 	@echo "======================================="
