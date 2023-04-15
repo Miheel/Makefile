@@ -1,31 +1,32 @@
 BIN = bin
 BUILD = build
 SRC_DIR = src
-DEP_DIR = dep
+DEP_DIR = $(BUILD)/dep
+OBJ_DIR = $(BUILD)/objs
 ##add additional includes if needed ex. /path/to/include/
-INCL_DIR = include
-INCL = $(addprefix -I,${INCL_DIR}/)
+INCL_DIR = include/
+INCL = $(addprefix -I,$(INCL_DIR))
 EXE = lab_.exe
 
 VPATH := $(SRC_DIR)
 
-PROJECT_STRUCTURE = $(BIN)/$(DEP_DIR)/. $(BUILD)/. $(SRC_DIR)/. $(INCL_DIR)/.
+PROJECT_STRUCTURE = $(BIN). $(BUILD)/. $(OBJ_DIR)/. $(DEP_DIR)/. $(SRC_DIR)/. $(INCL_DIR)/.
 
 SRC_FILES = $(wildcard $(SRC_DIR)/*.cpp)
 HEADER_FILES = $(wildcard $(INCL_DIR)/*.hpp)
-OBJ_FILES = $(patsubst $(SRC_DIR)/%.cpp,$(BIN)/%.o,$(SRC_FILES))
+OBJ_FILES = $(patsubst $(SRC_DIR)/%.cpp,$(OBJ_DIR)/%.o,$(SRC_FILES))
 ##list of dep files with new file path to dep dir
-DEP_FILES = $(OBJ_FILES:$(BIN)/%.o=$(BIN)/$(DEP_DIR)/%.d)
+DEP_FILES = $(OBJ_FILES:$(OBJ_DIR)/%.o=$(DEP_DIR)/%.d)
 ##add additional libraries if needed ex. -L./path/to/lib/
-LIBDIRS =
+LIBDIRS = 
 ##Specify libs to use ex. -lsfml-graphics
-LIBS =
+LIBS = 
 ##Compiler
 CXX = g++
 LANG_STD = -std=c++17
 ERR_FLAGS = -Wall -Wpedantic -Werror
 ## generate dep with phony targets and output to bin/dep
-DEP_GEN = -MMD -MP -MF $(BIN)/$(DEP_DIR)/$*.d
+DEP_GEN = -MMD -MP -MF $(DEP_DIR)/$*.d
 
 ##Linker flags
 #LDFLAGS = $(addprefix -L,$(LIBDIRS)) $(LIBS)
@@ -37,10 +38,10 @@ CPPFLAGS = $(INCL)
 COMPILE = $(CXX) $(CXXFLAGS) $(CPPFLAGS) $(DEP_GEN) -c
 LINK = $(CXX) $(LDFLAGS)
 
-all: $(BUILD)/$(EXE)
+all: $(BIN)/$(EXE)
 
 debug: CXXFLAGS += -g
-debug: $(BUILD)/$(EXE)
+debug: $(BIN)/$(EXE)
 
 ##Generating base directory structure for project
 ##and main file
@@ -56,14 +57,14 @@ $(SRC_DIR)/main.cpp:
 
 ##Rule for generating the executable.
 ##----------------------------------------------------------
-exe: $(BUILD)/$(EXE)
-$(BUILD)/$(EXE): $(OBJ_FILES) | $$(@D)/.
+exe: $(BIN)/$(EXE)
+$(BIN)/$(EXE): $(OBJ_FILES) | $$(@D)/.
 	$(LINK) $(OBJ_FILES) $(LIBS) -o $@
 
 ##Rule for compiling and generatign objectfiles (.o) files.
 ##----------------------------------------------------------
 objs:$(OBJ_FILES)
-$(BIN)/%.o: $(SRC_DIR)/%.cpp | $$(@D)/.
+$(OBJ_DIR)/%.o: $(SRC_DIR)/%.cpp | $$(@D)/.
 	$(COMPILE) $< -o $@
 
 -include $(DEP_FILES)
@@ -71,13 +72,13 @@ $(BIN)/%.o: $(SRC_DIR)/%.cpp | $$(@D)/.
 ##Running the program
 ##----------------------------------------------------------
 run: exe
-	./$(BUILD)/$(EXE)
+	./$(BIN)/$(EXE)
 
 ##Clean up the executable and object files
 ##----------------------------------------------------------
 .PHONY: clean
 clean:
-	rm -rf $(OBJ_FILES) $(BUILD)/$(EXE)
+	rm -rf $(OBJ_FILES) $(BIN)/$(EXE)
 
 help:
 	@echo "===================Commands==================="
@@ -90,10 +91,12 @@ help:
 	@echo "show		Show varialbes and files"	
 	@echo "help		Show this message"
 	@echo "project		Generate base project structure"
+	@echo "run	run the project"
 	@echo "==============================================="
 
 show:
 	@echo "============Flags and files============"
+	@echo "EXE:			"$(BIN)/$(EXE)
 	@echo "Source files:		"$(SRC_FILES)
 	@echo "object files:		"$(OBJ_FILES)
 	@echo "Header files:		"$(HEADER_FILES)
