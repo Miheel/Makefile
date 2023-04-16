@@ -4,7 +4,7 @@ SRC_DIR = src
 DEP_DIR = $(BUILD)/dep
 OBJ_DIR = $(BUILD)/objs
 ##add additional includes if needed ex. /path/to/include/
-INCL_DIR = include/ D:\Code\SFML\SFML-2.5.1-gcc\include/
+INCL_DIR = include/
 INCL = $(addprefix -I,$(INCL_DIR))
 EXE = lab_.exe
 
@@ -18,9 +18,9 @@ OBJ_FILES = $(patsubst $(SRC_DIR)/%.cpp,$(OBJ_DIR)/%.o,$(SRC_FILES))
 ##list of dep files with new file path to dep dir
 DEP_FILES = $(OBJ_FILES:$(OBJ_DIR)/%.o=$(DEP_DIR)/%.d)
 ##add additional libraries if needed ex. -L./path/to/lib/
-LIBDIRS = -LD:\Code\SFML\SFML-2.5.1-gcc\lib
+LIBDIRS = 
 ##Specify libs to use ex. -lsfml-graphics
-LIBS = -lsfml-graphics -lsfml-window -lsfml-system -lsfml-audio
+LIBS = 
 ##Compiler
 CXX = g++
 LANG_STD = -std=c++17
