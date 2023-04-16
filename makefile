@@ -4,13 +4,13 @@ SRC_DIR = src
 DEP_DIR = $(BUILD)/dep
 OBJ_DIR = $(BUILD)/objs
 ##add additional includes if needed ex. /path/to/include/
-INCL_DIR = include/
+INCL_DIR = include/ D:\Code\SFML\SFML-2.5.1-gcc\include/
 INCL = $(addprefix -I,$(INCL_DIR))
 EXE = lab_.exe
 
 VPATH := $(SRC_DIR)
 
-PROJECT_STRUCTURE = $(BIN). $(BUILD)/. $(OBJ_DIR)/. $(DEP_DIR)/. $(SRC_DIR)/. $(INCL_DIR)/.
+PROJECT_STRUCTURE = $(BIN)/. $(BUILD)/. $(OBJ_DIR)/. $(DEP_DIR)/. $(SRC_DIR)/. $(INCL_DIR)/.
 
 SRC_FILES = $(wildcard $(SRC_DIR)/*.cpp)
 HEADER_FILES = $(wildcard $(INCL_DIR)/*.hpp)
@@ -18,9 +18,9 @@ OBJ_FILES = $(patsubst $(SRC_DIR)/%.cpp,$(OBJ_DIR)/%.o,$(SRC_FILES))
 ##list of dep files with new file path to dep dir
 DEP_FILES = $(OBJ_FILES:$(OBJ_DIR)/%.o=$(DEP_DIR)/%.d)
 ##add additional libraries if needed ex. -L./path/to/lib/
-LIBDIRS = 
+LIBDIRS = -LD:\Code\SFML\SFML-2.5.1-gcc\lib
 ##Specify libs to use ex. -lsfml-graphics
-LIBS = 
+LIBS = -lsfml-graphics -lsfml-window -lsfml-system -lsfml-audio
 ##Compiler
 CXX = g++
 LANG_STD = -std=c++17
@@ -38,9 +38,11 @@ CPPFLAGS = $(INCL)
 COMPILE = $(CXX) $(CXXFLAGS) $(CPPFLAGS) $(DEP_GEN) -c
 LINK = $(CXX) $(LDFLAGS)
 
+.PHONY: all
 all: $(BIN)/$(EXE)
 
 debug: CXXFLAGS += -g
+.PHONY: debug
 debug: $(BIN)/$(EXE)
 
 ##Generating base directory structure for project
@@ -51,19 +53,21 @@ project: $(PROJECT_STRUCTURE) $(SRC_DIR)/main.cpp
 $(PROJECT_STRUCTURE):
 	mkdir -p $@
 $(SRC_DIR)/main.cpp: 
-	[ -f $(SRC_DIR)/main.cpp ] || echo -e '#include <iostream>\n\nint main()\n{\n\nreturn 0;\n}' > $(SRC_DIR)/main.cpp
+	[ -f $(SRC_DIR)/main.cpp ] || echo -e '#include <iostream>\n\nint main(int argc, char* argv[])\n{\n\n\tstd::cout << "Hello world!\\n";\n\n\treturn 0;\n}\n' > $(SRC_DIR)/main.cpp
 
 .SECONDEXPANSION:
 
 ##Rule for generating the executable.
 ##----------------------------------------------------------
-exe: $(BIN)/$(EXE)
+.PHONY: exe
+exe: $(BIN)/$(EXE) $(PROJECT_STRUCTURE)
 $(BIN)/$(EXE): $(OBJ_FILES) | $$(@D)/.
 	$(LINK) $(OBJ_FILES) $(LIBS) -o $@
 
 ##Rule for compiling and generatign objectfiles (.o) files.
 ##----------------------------------------------------------
-objs:$(OBJ_FILES)
+.PHONY: objs
+objs:$(OBJ_FILES) $(PROJECT_STRUCTURE)
 $(OBJ_DIR)/%.o: $(SRC_DIR)/%.cpp | $$(@D)/.
 	$(COMPILE) $< -o $@
 
@@ -71,6 +75,7 @@ $(OBJ_DIR)/%.o: $(SRC_DIR)/%.cpp | $$(@D)/.
 
 ##Running the program
 ##----------------------------------------------------------
+.PHONY: run
 run: exe
 	./$(BIN)/$(EXE)
 
@@ -80,6 +85,7 @@ run: exe
 clean:
 	rm -rf $(OBJ_FILES) $(BIN)/$(EXE)
 
+.PHONY: help
 help:
 	@echo "===================Commands==================="
 	@echo "make [TARGET]"
@@ -91,9 +97,10 @@ help:
 	@echo "show		Show varialbes and files"	
 	@echo "help		Show this message"
 	@echo "project		Generate base project structure"
-	@echo "run	run the project"
+	@echo "run		run the project"
 	@echo "==============================================="
 
+.PHONY: show
 show:
 	@echo "============Flags and files============"
 	@echo "EXE:			"$(BIN)/$(EXE)
